@@ -2,13 +2,13 @@
 
 One Live manages concert merchandise for major artists (Jelly Roll, U2, and more). They lose sales because fans face long lines at venue merch booths and One Live has no way to reach fans before or after a show. **Your challenge:** use Reactiv Clips (Apple App Clips) to capture the merch sales One Live is currently missing.
 
-Read the full problem statement: [PROBLEM_STATEMENT.md](PROBLEM_STATEMENT.md)
+Read the full problem statement: [../docs/PROBLEM_STATEMENT.md](../docs/PROBLEM_STATEMENT.md)
 
 ---
 
 ## The Concert Customer Journey
 
-Your solution should target **at least one** of these touchpoints. See [JOURNEY.md](JOURNEY.md) for a detailed guide.
+Your solution should target **at least one** of these touchpoints. See [../docs/JOURNEY.md](../docs/JOURNEY.md) for a detailed guide.
 
 ```
 Discovery → Ticket Purchase → The Wait → Show Day → Post-Show Afterglow
@@ -34,7 +34,7 @@ Discovery → Ticket Purchase → The Wait → Show Day → Post-Show Afterglow
 ## Setup
 
 1. Clone this repository
-2. Open `ReactivChallengeKit/ReactivChallengeKit.xcodeproj` in Xcode
+2. Open `ReactivChallengeKit.xcodeproj` in Xcode
 3. Select an iPhone simulator and press **Cmd+R**
 
 No dependencies. No SPM packages. No CocoaPods. If Xcode builds, you're ready.
@@ -114,6 +114,7 @@ struct PreShowHypeExperience: ClipExperience {
 ### Step 3: Rebuild
 
 The build script auto-discovers your experience from `Submissions/`. Run **Cmd+R** and your clip appears in the landing screen.
+If it does not appear, run `bash ../scripts/generate-registry.sh` once and rebuild.
 
 ### Step 4: Test
 
@@ -142,7 +143,7 @@ Pre-built components you can compose without deep SwiftUI knowledge. See `Reacti
 
 | Component | What It Does |
 |---|---|
-| `ClipBackground()` | System background that adapts to light/dark mode |
+| `ClipBackground()` | System background with subtle brand tint that adapts to light/dark mode |
 | `ClipHeader(title:subtitle:systemImage:)` | Title + subtitle + SF Symbol icon |
 | `ClipActionButton(title:icon:action:)` | Large styled call-to-action button |
 | `ClipSuccessOverlay(message:)` | Animated checkmark + confirmation message |

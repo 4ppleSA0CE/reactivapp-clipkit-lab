@@ -7,7 +7,7 @@ import SwiftUI
 //
 // DESIGN NOTES:
 // - Use system colors (.primary, .secondary, .tertiary) — they adapt to Liquid Glass
-// - Use .glassEffect(.regular, in: ...) for card surfaces
+// - Use .glassEffect(.regular.interactive(), in: ...) for card surfaces
 // - ConstraintBanner is added automatically by the simulator — don't add it yourself
 // - Wrap content in ScrollView to avoid overlapping with the top bar
 

@@ -52,6 +52,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 7409D7F42F525C070097EC9A /* Build configuration list for PBXNativeTarget "ReactivChallengeKit" */;
 			buildPhases = (
+				74AA00012F525C060097EC9A /* Generate Submission Registry */,
 				7409D7E52F525C060097EC9A /* Sources */,
 				7409D7E62F525C060097EC9A /* Frameworks */,
 				7409D7E72F525C060097EC9A /* Resources */,
@@ -113,6 +114,31 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		74AA00012F525C060097EC9A /* Generate Submission Registry */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/../scripts/generate-registry.sh",
+				"$(SRCROOT)/../Submissions",
+			);
+			name = "Generate Submission Registry";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(SRCROOT)/ReactivChallengeKit/SubmissionRegistry.swift",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "bash \"$SRCROOT/../scripts/generate-registry.sh\"";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		7409D7E52F525C060097EC9A /* Sources */ = {

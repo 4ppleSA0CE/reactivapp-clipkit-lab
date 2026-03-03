@@ -114,6 +114,7 @@ struct PreShowHypeExperience: ClipExperience {
 ### Step 3: Rebuild
 
 The build script auto-discovers your experience from `Submissions/`. Run **Cmd+R** and your clip appears in the landing screen.
+If it does not appear, run `bash scripts/generate-registry.sh` once and rebuild.
 
 ### Step 4: Test
 
@@ -142,7 +143,7 @@ Pre-built components you can compose without deep SwiftUI knowledge. See `Reacti
 
 | Component | What It Does |
 |---|---|
-| `ClipBackground()` | System background that adapts to light/dark mode |
+| `ClipBackground()` | System background with subtle brand tint that adapts to light/dark mode |
 | `ClipHeader(title:subtitle:systemImage:)` | Title + subtitle + SF Symbol icon |
 | `ClipActionButton(title:icon:action:)` | Large styled call-to-action button |
 | `ClipSuccessOverlay(message:)` | Animated checkmark + confirmation message |
