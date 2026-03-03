@@ -128,72 +128,161 @@ Consider the full lifecycle of a concert-goer when deciding where your solution 
 
 No dependencies. No SPM packages. If Xcode works, the project works.
 
-### First 60 Seconds (copy/paste)
+### Why no App Clip setup is required here
+
+This lab runs inside a **main app target** with a simulator shell. You do **not** need real App Clip plumbing to participate:
+
+- No separate App Clip target
+- No Associated Domains entitlement
+- No `onContinueUserActivity` wiring
+- No App Clip Code / invocation entitlement setup
+
+Use this repo to focus on product decisions, flow quality, and 30-second UX — not App Clip setup plumbing.
+
+## Zero-to-PR Quickstart
+
+### 0) Set the goal
+
+You are building one focused App Clip experience that:
+- Runs in simulator
+- Is invokable by URL
+
+That is it. Not a full app. Not multiple tabs. One clear moment.
+
+### 1) Clone and run
+
+1. Clone the repo
+2. Open `ReactivChallengeKit/ReactivChallengeKit.xcodeproj`
+3. Select an iPhone simulator
+4. Press **Cmd + R**
+
+You should see:
+- Landing screen with example clips
+- Invocation URL console at the bottom
+
+If it does not build:
+- Product -> Clean Build Folder (**Cmd + Shift + K**)
+- Run again
+
+### 2) Understand the playground
+
+You can trigger experiences in two ways:
+- Tap a card on landing
+- Enter a URL in the console (simulates a real App Clip trigger)
+
+Quickly scan:
+- `docs/README.md` — quickstart + rules
+- `docs/CONSTRAINTS.md` — App Clip limits
+- `docs/SUBMISSION.md` — what judges expect
+
+### 3) Create your submission folder
+
+From repo root:
 
 ```bash
 bash scripts/doctor.sh
 bash scripts/create-submission.sh "Your Team Name"
+```
+
+Optional custom experience name:
+
+```bash
+bash scripts/create-submission.sh "Team 42" "Team42CampusCheckinExperience"
+```
+
+Important:
+- Team names are slugged for folder names (`Team 42` -> `team-42`)
+- The script prints the exact created folder and Swift file path
+
+Then open:
+- `Submissions/<team-slug>/<YourExperience>.swift`
+- `Submissions/<team-slug>/SUBMISSION.md`
+
+If Xcode shows your team file without Target Membership, that is expected in this lab.
+Submissions compile through generated `GeneratedSubmissions.swift`.
+
+### 4) Define your clip identity
+
+In your experience file, set:
+- `urlPattern`
+- `clipName`
+- `clipDescription`
+- `teamName`
+- `touchpoint`
+- `invocationSource`
+
+Example URL pattern:
+- `example.com/store/:storeId/checkin`
+
+Keep it realistic. Think like a real business.
+
+### 5) Build the UI
+
+Keep it simple and focused:
+- Use provided components (`ClipHeader`, `MerchGrid`, `CartSummary`, etc.) or write your own
+- Build one clear flow that finishes fast
+- Use `ScrollView` so content does not fight host overlays
+- Do not manually add `ConstraintBanner()` (host injects it)
+
+If your clip takes more than 30 seconds to understand, it is too complex.
+
+### 6) Make sure it appears
+
+Run **Cmd + R**.
+
+It should auto-register because:
+- Build runs `scripts/generate-registry.sh`
+- `SubmissionRegistry.swift` updates
+- Router includes your clip
+
+If it does not show up:
+
+```bash
 bash scripts/generate-registry.sh
 ```
 
-Expected result:
-- `Preflight passed.`
-- `Created submission scaffold:` with your folder path
-- `SubmissionRegistry: found ...`
+Then rebuild.
 
-## How to Build Your Clip
+### 7) Test URL invocation
 
-### Step 1: Create your submission scaffold
+If your pattern is:
+- `example.com/store/:storeId/checkin`
 
-Use the helper script:
+Test with:
+- `example.com/store/42/checkin`
 
-```bash
-bash scripts/create-submission.sh "Your Team Name"
-```
+Expected:
+- Your clip opens
+- Path parameters parse correctly
 
-This creates `Submissions/<team-slug>/` from template, renames the Swift file to a unique `ClipExperience` type, and pre-fills team details.
-If Xcode shows your submission file with Target Membership unchecked, that's expected in this lab setup.
+If invocation fails, your URL pattern is wrong. Fix that first.
 
-### Step 2: Conform to the Protocol
+### 8) Validate before opening PR
 
-```swift
-struct MyClipExperience: ClipExperience {
-    static let urlPattern = "example.com/your-team/:id"
-    static let clipName = "My Clip"
-    static let clipDescription = "One line about what it does."
+Quick checklist:
+- Builds locally
+- URL invocation works
+- One complete flow works end-to-end
+- Value is obvious in under 30 seconds
+- `SUBMISSION.md` has all required sections
+- Demo video/screenshots included
 
-    let context: ClipContext
+### 9) Submit
 
-    var body: some View {
-        // Your SwiftUI UI here
-        // Access context.pathParameters["id"] for the URL parameter
-        // Access context.queryParameters for ?key=value pairs
-    }
-}
-```
+1. Commit only files under `Submissions/<team-slug>/` (unless maintainers ask otherwise)
+2. Push your branch
+3. Open a PR
+4. Wait for CI check (`PR Validation - ClipKit Build / Build & Validate`)
+5. Fix anything that fails
 
-### Step 3: Build (auto-register)
+### 10) Final gut check
 
-No manual router edits are needed. The build script auto-discovers clips in `Submissions/` and generates the registry.
-It compiles submissions through `GeneratedSubmissions.swift`, so target-membership checkbox state on team files is not a blocker.
-
-### Step 4: Test It
-
-Run the app, type your invocation URL in the console (e.g., `example.com/your-team/:param`), and tap send. Or tap your registered clip card on the landing page.
-
-### Common Setup Issues
-
-- `create-submission.sh` says folder exists
-  - Pick another team name or remove old folder in `Submissions/`
-- Build says invalid redeclaration
-  - You likely reused a struct name; run scaffold script again with a unique experience name
-- Clip does not appear on landing
-  - Build once in Xcode or run `bash scripts/generate-registry.sh`
-- Xcode shows team file without target membership
-  - Expected: submissions are compiled through auto-generated `GeneratedSubmissions.swift`
-  - Build once (or run `bash scripts/generate-registry.sh`) and verify your clip appears
-- Script says template missing
-  - Run commands from repo root and verify `Submissions/_template` exists
+Ask yourself:
+- What problem am I solving?
+- How is this clip invoked?
+- What is the core action?
+- Why is this better as a Clip, not a full app?
+- Why would a business care?
 
 ## What You Get
 

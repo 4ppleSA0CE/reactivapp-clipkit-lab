@@ -1,3 +1,15 @@
+# Documentation Entry
+
+Canonical guide:
+
+- [Root README](../README.md)
+
+Additional docs:
+
+- [CONSTRAINTS.md](CONSTRAINTS.md)
+- [JOURNEY.md](JOURNEY.md)
+- [SUBMISSION.md](SUBMISSION.md)
+- [PROBLEM_STATEMENT.md](PROBLEM_STATEMENT.md)
 # Reactiv ClipKit Lab
 
 An App Clip simulator for Hack Canada. Build creative App Clip experiences without needing entitlements, Associated Domains, or an Apple Developer account.
@@ -62,6 +74,17 @@ For the event use case, see detailed journey context in [JOURNEY.md](JOURNEY.md)
 
 No dependencies. No SPM packages. No CocoaPods. If Xcode builds, you're ready.
 
+### Why no App Clip setup is required here
+
+This lab runs inside a **main app target** plus simulator shell. You do **not** need real App Clip setup to build your submission:
+
+- No separate App Clip target
+- No Associated Domains entitlement
+- No `onContinueUserActivity` implementation
+- No App Clip invocation entitlement wiring
+
+Focus on the product and UX first.
+
 ---
 
 ## 10-Minute Quickstart (First Success)
@@ -80,6 +103,7 @@ If you are new to SwiftUI or App Clips, follow this exactly:
 6. Use Invocation Console with a matching URL and verify your clip opens.
 
 **You are done with setup when all 3 are true:**
+
 - Your clip card appears on landing
 - Your URL pattern invokes your clip correctly
 - `Submissions/YourTeamName/SUBMISSION.md` is started
@@ -179,19 +203,19 @@ Type your invocation URL in the console at the bottom (e.g., `example.com/show/t
 
 Pre-built components you can compose without deep SwiftUI knowledge. See `ReactivChallengeKit/Components/`.
 
-| Component | What It Does |
-|---|---|
-| `ClipBackground()` | Neutral system background that adapts to light/dark mode |
-| `ClipHeader(title:subtitle:systemImage:)` | Title + subtitle + SF Symbol icon |
-| `ClipActionButton(title:icon:action:)` | Large styled call-to-action button |
-| `ClipSuccessOverlay(message:)` | Animated checkmark + confirmation message |
-| `ArtistBanner(artist:venue:showDate:)` | Artist name, tour name, venue — concert poster style |
-| `MerchProductCard(product:onAddToCart:)` | Single product with price and "Add" button |
-| `MerchGrid(products:onAddToCart:)` | 2-column product grid |
-| `CartSummary(items:onCheckout:)` | Expandable cart with total and checkout button |
-| `NotificationPreview(template:)` | Mock iOS notification bubble |
-| `NotificationTimeline(templates:)` | Horizontal scroll of notification previews |
-| `ConstraintBanner()` | "App Clip Preview — Get the full app" bar (injected by simulator host) |
+| Component                                 | What It Does                                                           |
+| ----------------------------------------- | ---------------------------------------------------------------------- |
+| `ClipBackground()`                        | Neutral system background that adapts to light/dark mode               |
+| `ClipHeader(title:subtitle:systemImage:)` | Title + subtitle + SF Symbol icon                                      |
+| `ClipActionButton(title:icon:action:)`    | Large styled call-to-action button                                     |
+| `ClipSuccessOverlay(message:)`            | Animated checkmark + confirmation message                              |
+| `ArtistBanner(artist:venue:showDate:)`    | Artist name, tour name, venue — concert poster style                   |
+| `MerchProductCard(product:onAddToCart:)`  | Single product with price and "Add" button                             |
+| `MerchGrid(products:onAddToCart:)`        | 2-column product grid                                                  |
+| `CartSummary(items:onCheckout:)`          | Expandable cart with total and checkout button                         |
+| `NotificationPreview(template:)`          | Mock iOS notification bubble                                           |
+| `NotificationTimeline(templates:)`        | Horizontal scroll of notification previews                             |
+| `ConstraintBanner()`                      | "App Clip Preview — Get the full app" bar (injected by simulator host) |
 
 ---
 
@@ -199,15 +223,15 @@ Pre-built components you can compose without deep SwiftUI knowledge. See `Reacti
 
 `ChallengeMockData` provides ready-to-use data so you can focus on the experience:
 
-| Data | Access |
-|---|---|
-| Artist profiles | `ChallengeMockData.artists` |
-| Merch catalog (8 items) | `ChallengeMockData.products` |
-| Featured products (top 4) | `ChallengeMockData.featuredProducts` |
-| Products by category | `ChallengeMockData.products(for: .apparel)` |
-| Venue info | `ChallengeMockData.venues` |
-| Show schedule | `ChallengeMockData.shows` |
-| Push notification examples | `ChallengeMockData.notificationTemplates` |
+| Data                       | Access                                      |
+| -------------------------- | ------------------------------------------- |
+| Artist profiles            | `ChallengeMockData.artists`                 |
+| Merch catalog (8 items)    | `ChallengeMockData.products`                |
+| Featured products (top 4)  | `ChallengeMockData.featuredProducts`        |
+| Products by category       | `ChallengeMockData.products(for: .apparel)` |
+| Venue info                 | `ChallengeMockData.venues`                  |
+| Show schedule              | `ChallengeMockData.shows`                   |
+| Push notification examples | `ChallengeMockData.notificationTemplates`   |
 
 ---
 
@@ -222,12 +246,12 @@ Pre-built components you can compose without deep SwiftUI knowledge. See `Reacti
 
 ## Simulator Components (provided)
 
-| Component | What It Does |
-|---|---|
+| Component             | What It Does                                                            |
+| --------------------- | ----------------------------------------------------------------------- |
 | **InvocationConsole** | URL text field + Invoke button. Simulates how real clips are triggered. |
-| **ClipRouter** | Matches URLs against registered patterns and extracts path parameters. |
-| **ConstraintBanner** | "This is an App Clip" bar. Always visible, like real clips. |
-| **MomentTimer** | Seconds-since-invocation. Green < 20s, yellow < 30s, red >= 30s. |
+| **ClipRouter**        | Matches URLs against registered patterns and extracts path parameters.  |
+| **ConstraintBanner**  | "This is an App Clip" bar. Always visible, like real clips.             |
+| **MomentTimer**       | Seconds-since-invocation. Green < 20s, yellow < 30s, red >= 30s.        |
 
 ---
 
@@ -236,3 +260,7 @@ Pre-built components you can compose without deep SwiftUI knowledge. See `Reacti
 Real App Clips have hard constraints. Read [CONSTRAINTS.md](CONSTRAINTS.md) to understand them — they're not limitations, they're a design language.
 
 The question is NOT "can you build an iOS app?" The question is: **"what experience fits the shape of an App Clip that nobody has built yet?"**
+
+## Supporting Resources
+
+- [Apple App Clips Developer Documentation](https://developer.apple.com/documentation/appclip)
