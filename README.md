@@ -158,7 +158,8 @@ Open `Simulator/ClipRouter.swift` and add your type to `allExperiences`:
 
 ```swift
 static let allExperiences: [any ClipExperience.Type] = [
-    HelloClipExperience.self,
+    VenueMerchExperience.self,
+    TrailCheckInExperience.self,
     MyClipExperience.self,  // <-- add this
 ]
 ```
@@ -209,7 +210,7 @@ ReactivChallengeKit/
     ClipExperience.swift           # Protocol you conform to
     ClipContext.swift              # URL data passed to your clip
   Examples/
-    HelloClipExperience.swift      # Working example (protocol demo)
+    VenueMerchExperience.swift     # Example: venue merch flow
     TrailCheckInExperience.swift   # Working example (non-trivial clip)
     EmptyClipExperience.swift      # Your starting template
 ```

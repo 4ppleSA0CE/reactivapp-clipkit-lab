@@ -8,7 +8,7 @@ import SwiftUI
 
 struct TrailCheckInExperience: ClipExperience {
     static let urlPattern = "trailkit.io/trail/:trailId/checkin"
-    static let clipName = "Trail Check-In"
+    static let clipName = "Example: Trail Check-In"
     static let clipDescription = "Check in at the trailhead and share safety status in seconds."
     static let touchpoint: JourneyTouchpoint = .onSite
     static let invocationSource: InvocationSource = .qrCode
