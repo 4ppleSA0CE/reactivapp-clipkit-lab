@@ -118,7 +118,7 @@ Consider the full lifecycle of a concert-goer when deciding where your solution 
 - **Swift 5.0**
 - No external dependencies (no SPM, CocoaPods, or Carthage)
 
-## Setup
+## Setup for macOS
 
 1. Download [Xcode 26+](https://developer.apple.com/xcode/) from the Mac App Store or Apple Developer website (free, requires a Mac)
 2. Clone this repository
@@ -127,6 +127,112 @@ Consider the full lifecycle of a concert-goer when deciding where your solution 
 5. Build and Run (Cmd+R)
 
 No dependencies. No SPM packages. If Xcode works, the project works.
+
+## Setup for Windows
+
+Since Xcode only runs on macOS, Windows users need to run macOS in a virtual machine. VirtualBox is a free, open-source option for this.
+
+### Prerequisites
+
+- Windows 10 or 11
+- At least 8GB RAM (16GB+ recommended)
+- A processor with at least 4 cores and virtualization enabled (VT-x/AMD-V) in BIOS
+- At least 80GB of free disk space
+- An internet connection
+
+### Step 1 — Download and Install VirtualBox
+
+1. Download [VirtualBox](https://www.virtualbox.org/wiki/Downloads) (Windows hosts) and the **Extension Pack** from the same page
+2. Install VirtualBox following the on-screen prompts
+3. After installation, open VirtualBox, go to **File > Preferences > Extensions**, click the **+** icon, and add the downloaded Extension Pack
+
+### Step 2 — Obtain a macOS ISO
+
+You need a macOS installer ISO image (macOS Sequoia or later recommended). If you have access to a Mac, you can create one:
+
+1. Download macOS from the App Store (do not install it)
+2. Open Terminal and create a blank DMG:
+   ```bash
+   sudo hdiutil create -o ~/Desktop/macOS -size 16000m -volname macOS -layout SPUD -fs HFS+J
+   ```
+3. Mount the DMG, create install media onto it, then convert to ISO:
+   ```bash
+   hdiutil convert ~/Desktop/macOS.dmg -format UDTO -o ~/Desktop/macOS
+   mv ~/Desktop/macOS.cdr ~/Desktop/macOS.iso
+   ```
+
+If you do not have access to a Mac, search for trusted macOS ISO sources online.
+
+### Step 3 — Create the Virtual Machine
+
+1. Open VirtualBox and click **New**
+2. Set the following:
+   - **Name:** `macOS` (or any name you prefer — remember it for later commands)
+   - **Type:** Mac OS X
+   - **Version:** Mac OS X (64-bit)
+3. Allocate resources:
+   - **RAM:** 8192 MB minimum (do not exceed the green zone on the slider)
+   - **CPU Cores:** 2 minimum (4 recommended)
+   - **Hard Disk:** Create a virtual hard disk, 80 GB or more, VDI format, dynamically allocated
+4. Click **Finish**
+
+### Step 4 — Configure VM Settings
+
+1. Select the VM and click **Settings**
+2. **System** — Uncheck **Floppy** from the boot order
+3. **Display** — Set Video Memory to **128 MB**
+4. **Storage** — Under **Controller: SATA**, click the **Empty** disk icon, then click the disk icon next to **Optical Drive** and choose your macOS ISO file
+5. Click **OK**
+6. **Completely quit VirtualBox** before proceeding to the next step
+
+### Step 5 — Apply VirtualBox Patches (Required)
+
+macOS will not boot without these patches. Open **PowerShell as Administrator** and run the following commands. Replace `macOS` with whatever name you gave your VM in Step 3:
+
+```powershell
+cd "C:\Program Files\Oracle\VirtualBox\"
+
+.\VBoxManage.exe modifyvm "macOS" --cpuidset 00000001 000106e5 00100800 0098e3fd bfebfbff
+
+.\VBoxManage setextradata "macOS" "VBoxInternal/Devices/efi/0/Config/DmiSystemProduct" "iMac11,3"
+
+.\VBoxManage setextradata "macOS" "VBoxInternal/Devices/efi/0/Config/DmiSystemVersion" "1.0"
+
+.\VBoxManage setextradata "macOS" "VBoxInternal/Devices/efi/0/Config/DmiBoardProduct" "Iloveapple"
+
+.\VBoxManage setextradata "macOS" "VBoxInternal/Devices/smc/0/Config/DeviceKey" "ourhardworkbythesewordsguardedpleasedontsteal(c)AppleComputerInc"
+
+.\VBoxManage setextradata "macOS" "VBoxInternal/Devices/smc/0/Config/GetKeyFromRealSMC" 1
+```
+
+### Step 6 — Install macOS
+
+1. Reopen VirtualBox and click **Start** on your macOS VM
+2. When the macOS installer boots, open **Disk Utility** from the utilities menu
+3. Select the VirtualBox hard disk and click **Erase** (format as **APFS**)
+4. Close Disk Utility and select **Install macOS**
+5. Follow the on-screen setup (language, region, account creation)
+6. Installation will restart the VM several times — this is normal
+
+### Step 7 — Adjust Screen Resolution (Optional)
+
+The default resolution is small. To change it, shut down the VM, open **PowerShell as Administrator**, and run:
+
+```powershell
+cd "C:\Program Files\Oracle\VirtualBox\"
+.\VBoxManage setextradata "macOS" "VBoxInternal2/EfiGraphicsResolution" "1920x1080"
+```
+
+Replace `1920x1080` with your preferred resolution.
+
+### Step 8 — Install Xcode and Run the Project
+
+1. Boot into your macOS VM
+2. Open the **App Store**, sign in with an Apple ID, and download [Xcode 26+](https://developer.apple.com/xcode/)
+3. Once installed, open Xcode and install any additional components it requests
+4. Follow the [Setup for macOS](#setup-for-macos) steps above (clone, open project, build and run)
+
+> **Note:** VirtualBox VMs run slower than native macOS. Expect longer build times. Performance will vary based on your host machine's specs.
 
 ### Why no App Clip setup is required here
 
