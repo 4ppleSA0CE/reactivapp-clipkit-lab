@@ -52,6 +52,8 @@ Team submissions live in `Submissions/<team-slug>/` and are compiled into the ap
 - **`scripts/doctor.sh`** — Pre-flight environment check.
 - **`SubmissionRegistry.swift`** and **`GeneratedSubmissions.swift`** — Auto-generated; do not edit manually.
 
+**Compilation gotcha:** The `Submissions/` folder is added as a folder reference in the Xcode project. Only the main experience file (e.g., `StageswagClipExperience.swift`) is listed in the folder reference's "Exceptions" and compiled directly by Xcode. All other supporting files must be included in `GeneratedSubmissions.swift` to be compiled. Do NOT put the main experience struct in `GeneratedSubmissions.swift` or it will be a duplicate. The `generate-registry.sh` build phase script will overwrite `GeneratedSubmissions.swift` on each build — if the script concatenates all files (including the exception file), you'll get redeclaration errors. To avoid this, either disable the build phase or ensure the script excludes files already compiled via the folder reference.
+
 ### Reusable Components (`Components/`)
 
 Building blocks for clip UIs: `ClipHeader`, `ClipBackground`, `ClipActionButton`, `ClipSuccessOverlay`, `ArtistBanner`, `MerchGrid`, `MerchProductCard`, `CartSummary`, `NotificationPreview`.
@@ -86,6 +88,8 @@ ReactivChallengeKitApp -> SimulatorShell
 5. Test by entering a matching URL in the InvocationConsole
 
 Existing examples: `VenueMerchExperience` (merch grid + cart), `TrailCheckInExperience` (stateful with animations), `EmptyClipExperience` (template).
+
+Existing submissions: `StageswagClipExperience` (setlist-driven concert merch with song unlocks, 4 themes, audio player reward).
 
 ## Key Patterns
 
