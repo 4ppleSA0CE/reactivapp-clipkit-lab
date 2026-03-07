@@ -91,21 +91,25 @@ struct StageswagThemePicker: View {
     var body: some View {
         HStack(spacing: 12) {
             ForEach(StageswagTheme.allCases) { theme in
-                Circle()
-                    .fill(theme.pickerColor)
-                    .frame(width: 28, height: 28)
-                    .overlay {
-                        if theme == selectedTheme {
-                            Circle()
-                                .strokeBorder(.white, lineWidth: 2.5)
-                        }
+                Button {
+                    withAnimation(.spring(duration: 0.3)) {
+                        selectedTheme = theme
                     }
-                    .scaleEffect(theme == selectedTheme ? 1.15 : 1.0)
-                    .onTapGesture {
-                        withAnimation(.spring(duration: 0.3)) {
-                            selectedTheme = theme
+                } label: {
+                    Circle()
+                        .fill(theme.pickerColor)
+                        .frame(width: 28, height: 28)
+                        .overlay {
+                            if theme == selectedTheme {
+                                Circle()
+                                    .strokeBorder(.white, lineWidth: 2.5)
+                            }
                         }
-                    }
+                        .scaleEffect(theme == selectedTheme ? 1.15 : 1.0)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(theme.displayName)
+                .accessibilityAddTraits(theme == selectedTheme ? .isSelected : [])
             }
         }
         .padding(.vertical, 8)

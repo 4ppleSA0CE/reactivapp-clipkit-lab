@@ -300,21 +300,25 @@ struct StageswagThemePicker: View {
     var body: some View {
         HStack(spacing: 12) {
             ForEach(StageswagTheme.allCases) { theme in
-                Circle()
-                    .fill(theme.pickerColor)
-                    .frame(width: 28, height: 28)
-                    .overlay {
-                        if theme == selectedTheme {
-                            Circle()
-                                .strokeBorder(.white, lineWidth: 2.5)
-                        }
+                Button {
+                    withAnimation(.spring(duration: 0.3)) {
+                        selectedTheme = theme
                     }
-                    .scaleEffect(theme == selectedTheme ? 1.15 : 1.0)
-                    .onTapGesture {
-                        withAnimation(.spring(duration: 0.3)) {
-                            selectedTheme = theme
+                } label: {
+                    Circle()
+                        .fill(theme.pickerColor)
+                        .frame(width: 28, height: 28)
+                        .overlay {
+                            if theme == selectedTheme {
+                                Circle()
+                                    .strokeBorder(.white, lineWidth: 2.5)
+                            }
                         }
-                    }
+                        .scaleEffect(theme == selectedTheme ? 1.15 : 1.0)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(theme.displayName)
+                .accessibilityAddTraits(theme == selectedTheme ? .isSelected : [])
             }
         }
         .padding(.vertical, 8)
@@ -760,36 +764,41 @@ struct StageswagCheckoutView: View {
 
     var body: some View {
         VStack(spacing: 18) {
-            Spacer()
+            ScrollView {
+                VStack(spacing: 18) {
+                    ClipHeader(
+                        title: "Checkout",
+                        subtitle: "Pick up at the merch booth after the show",
+                        systemImage: "bag.fill"
+                    )
+                    .padding(.horizontal, 24)
+                    .padding(.top, 16)
 
-            ClipHeader(
-                title: "Checkout",
-                subtitle: "Pick up at the merch booth after the show",
-                systemImage: "bag.fill"
-            )
-            .padding(.horizontal, 24)
+                    GlassEffectContainer {
+                        VStack(spacing: 6) {
+                            ForEach(cartItems) { item in
+                                stageswagCheckoutRow(
+                                    label: item.merchItem.name,
+                                    detail: item.size.map { "Size: \($0)" },
+                                    value: String(format: "$%.2f", item.merchItem.price),
+                                    color: item.merchItem.accentColor
+                                )
+                            }
 
-            GlassEffectContainer {
-                VStack(spacing: 6) {
-                    ForEach(cartItems) { item in
-                        stageswagCheckoutRow(
-                            label: item.merchItem.name,
-                            detail: item.size.map { "Size: \($0)" },
-                            value: String(format: "$%.2f", item.merchItem.price),
-                            color: item.merchItem.accentColor
-                        )
+                            Divider()
+                                .padding(.vertical, 4)
+
+                            stageswagSummaryRow(label: "Items", value: "\(cartItems.count)")
+                            stageswagSummaryRow(label: "Subtotal", value: String(format: "$%.2f", subtotal))
+                            stageswagSummaryRow(label: "Pickup", value: "Merch Booth #2")
+                            stageswagSummaryRow(label: "Payment", value: "Apple Pay (Mock)")
+                        }
                     }
-
-                    Divider()
-                        .padding(.vertical, 4)
-
-                    stageswagSummaryRow(label: "Items", value: "\(cartItems.count)")
-                    stageswagSummaryRow(label: "Subtotal", value: String(format: "$%.2f", subtotal))
-                    stageswagSummaryRow(label: "Pickup", value: "Merch Booth #2")
-                    stageswagSummaryRow(label: "Payment", value: "Apple Pay (Mock)")
+                    .padding(.horizontal, 20)
                 }
+                .padding(.bottom, 8)
             }
-            .padding(.horizontal, 20)
+            .scrollIndicators(.hidden)
 
             HStack(spacing: 10) {
                 ClipActionButton(title: "Back", icon: "chevron.left", style: .secondary) {
@@ -801,8 +810,7 @@ struct StageswagCheckoutView: View {
                 }
             }
             .padding(.horizontal, 0)
-
-            Spacer()
+            .padding(.bottom, 16)
         }
     }
 
