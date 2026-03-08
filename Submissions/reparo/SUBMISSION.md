@@ -1,6 +1,6 @@
 ## Team Name: Reparo
 ## Clip Name: Reparo
-## Invocation URL Pattern: example.com/reparo/:param
+## Invocation URL Pattern: example.com/reparo/repair
 
 ---
 
@@ -20,20 +20,22 @@ Which user moment or touchpoint are you targeting?
 
 - [ ] Discovery / first awareness
 - [ ] Intent / consideration
-- [ ] Purchase / conversion
-- [ ] In-person / on-site interaction
+- [x] Purchase / conversion
+- [x] In-person / on-site interaction
 - [ ] Post-purchase / re-engagement
-- [ ] Other: ___
+- [x] Other: Utility — repair guidance at the moment something breaks
 
 What friction or missed opportunity are you solving for? (3-5 sentences)
+
+When something breaks, people usually don’t know where to start. Is it worth fixing? How hard is it? What parts do they need, and where do they buy them? The usual path is a mix of search results, forums, and shopping sites. Reparo gives a single path: take a photo, get a repair assessment and step-by-step instructions, and add the right parts and tools to a cart. No app install, no account. The goal is to get from “it’s broken” to “I know what to do and I can buy it” in one short session.
 
 ---
 
 ### 2. Proposed Solution
 
 **How is the Clip invoked?** (check all that apply)
-- [ ] QR Code (printed on physical surface)
-- [ ] NFC Tag (embedded in object — wristband, poster, etc.)
+- [x] QR Code (printed on physical surface)
+- [x] NFC Tag (embedded in object — wristband, poster, etc.)
 - [ ] iMessage / SMS Link
 - [ ] Safari Smart App Banner
 - [ ] Apple Maps (location-based)
@@ -41,17 +43,19 @@ What friction or missed opportunity are you solving for? (3-5 sentences)
 - [ ] Other: ___
 
 **End-to-end user experience** (step by step):
-1. 
-2. 
-3. 
+1. User opens the Clip by scanning a QR code (e.g. on product packaging or a tag) or tapping an NFC tag on the product.
+2. Inside the Clip, they take a photo of the broken item or choose one from their library. A backend analyzes the image and returns a repair report: repairability, difficulty, estimated cost and time, step-by-step instructions, and a list of parts and tools.
+3. The user taps “Checkout” to see a cart of recommended parts and tools (with the option to remove items) and can complete a mock purchase via Credit/Debit, Solana, or Shop Pay, all within the Clip.
 
 **How does the 8-hour notification window factor into your strategy?**
+
+We’d use it to re-engage users who didn’t finish: send a link back to their repair guide, or a reminder if they left items in the cart. We could also use it as a progress check — e.g. “How’s the repair going?” — especially if the step-by-step instructions were a checkable to-do list in the Clip; users could mark steps complete, and the notification could reflect that (e.g. “You’ve got 2 steps left”) or simply prompt them to open the guide again. That keeps people moving without needing a full app.
 
 ---
 
 ### 3. Platform Extensions (if applicable)
 
-Does your solution require new Reactiv Clips capabilities that do not exist today? If so, describe them and explain why they are required.
+The prototype works with current Reactiv Clips capabilities. One extension that would help: the ability to restore or deep-link back to a specific repair report when the user returns via the 8-hour notification, so they don’t have to re-scan or re-analyze — they land on their existing guide and cart. Not required for the submission.
 
 ---
 
@@ -59,19 +63,28 @@ Does your solution require new Reactiv Clips capabilities that do not exist toda
 
 What does your working prototype demonstrate? Which screens/flows are implemented?
 
-Minimum expectation:
-- A working `ClipExperience`
-- Invokable via your URL pattern in Invocation Console
-- At least one complete user flow with a clear end state
+The prototype runs the full Reparo flow end to end:
+
+- **Welcome** — Short explanation of the flow (upload photo → get report → buy parts). One primary action to start.
+- **Upload** — User selects an image from the photo library or, on device, uses the camera. Preview is shown before submit.
+- **Analyzing** — Loading state while the backend processes the image (FastAPI + Gemini).
+- **Results** — Repair report with repairability and difficulty badges, cost and time estimates, expandable step-by-step instructions, parts and tools lists, and links to product pages.
+- **Checkout** — Cart built from the recommended parts and tools, with per-item prices that sum to the estimated cost. Items can be removed. Three mock payment options: Credit/Debit, Solana, and Shop Pay.
+- **Order Confirmed** — Success state with the option to start a new repair.
+
+Invocation: `example.com/reparo/repair` in the Invocation Console. Backend is a live FastAPI service; product links use the Shopify Storefront API where available.
 
 ---
 
 ### 5. Impact Hypothesis
 
 How does this create measurable business impact? Be specific about:
-- Which channel benefits (in-person, online, or both)?
-- What conversion or engagement improvement do you estimate, and why?
-- Why this touchpoint is the right place to intervene
+
+**Channels:** In-person and online both benefit. In-person: QR on packaging or at retail puts repair help and parts purchase at the point of need; NFC on products (e.g. furniture, appliances) can drive repair and parts sales long after purchase. Online: support can send a Reparo link instead of long troubleshooting; the Clip turns a support touch into a potential parts sale.
+
+**Conversion:** The current path from “broken” to “bought the part” has many steps and high drop-off. Reparo shortens it to one session with a clear recommendation and checkout. We expect a meaningful lift in repair-parts conversion (on the order of several times) for users who complete the flow, since research and purchase happen in the same place. Retailers or brands that own the Clip keep the sale instead of losing it to third-party search.
+
+**Touchpoint:** The moment something breaks is when intent is highest. A Clip that returns a repair plan and a way to buy in under 30 seconds, with no install or sign-up, is timed for that moment.
 
 ---
 

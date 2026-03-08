@@ -81,6 +81,7 @@ struct ReparoClipExperience: ClipExperience {
     @State private var lastImageData: Data?
     @State private var showCamera = false
     @State private var cartItems: [CheckoutItem] = []
+    @State private var checkedRepairStepIndices: Set<Int> = []
 
     var body: some View {
         ZStack {
@@ -417,7 +418,7 @@ struct ReparoClipExperience: ClipExperience {
 
     @ViewBuilder
     private func repairStepsSection(_ steps: [String]) -> some View {
-        RepairStepsView(steps: steps)
+        RepairStepsView(steps: steps, checkedIndices: $checkedRepairStepIndices)
             .padding(.horizontal, 24)
     }
 
@@ -684,14 +685,16 @@ struct ReparoClipExperience: ClipExperience {
         selectedImageData = nil
         selectedImage = nil
         lastImageData = nil
+        checkedRepairStepIndices = []
         step = .upload
     }
 }
 
-// MARK: - Repair Steps (collapsible)
+// MARK: - Repair Steps (collapsible, checkable)
 
 private struct RepairStepsView: View {
     let steps: [String]
+    @Binding var checkedIndices: Set<Int>
     @State private var expanded = false
 
     var body: some View {
@@ -703,6 +706,11 @@ private struct RepairStepsView: View {
                     Image(systemName: "list.clipboard")
                     Text(expanded ? "Hide instructions" : "Step-by-step instructions")
                         .font(.system(size: 14, weight: .semibold))
+                    if !checkedIndices.isEmpty {
+                        Text("(\(checkedIndices.count)/\(steps.count) done)")
+                            .font(.system(size: 12))
+                            .foregroundStyle(.secondary)
+                    }
                     Spacer()
                     Image(systemName: expanded ? "chevron.up" : "chevron.down")
                         .font(.system(size: 12, weight: .semibold))
@@ -715,15 +723,29 @@ private struct RepairStepsView: View {
 
             if expanded {
                 VStack(alignment: .leading, spacing: 10) {
-                    ForEach(Array(steps.enumerated()), id: \.offset) { idx, step in
-                        HStack(alignment: .top, spacing: 10) {
-                            Text("\(idx + 1).")
-                                .font(.system(size: 13, weight: .bold, design: .monospaced))
-                                .foregroundStyle(.secondary)
-                                .frame(width: 24, alignment: .trailing)
-                            Text(step)
-                                .font(.system(size: 13))
+                    ForEach(Array(steps.enumerated()), id: \.offset) { idx, stepText in
+                        Button {
+                            var next = checkedIndices
+                            if next.contains(idx) { next.remove(idx) } else { next.insert(idx) }
+                            checkedIndices = next
+                        } label: {
+                            HStack(alignment: .top, spacing: 10) {
+                                Image(systemName: checkedIndices.contains(idx) ? "checkmark.circle.fill" : "circle")
+                                    .font(.system(size: 18))
+                                    .foregroundStyle(checkedIndices.contains(idx) ? .green : .secondary)
+                                Text("\(idx + 1).")
+                                    .font(.system(size: 13, weight: .bold, design: .monospaced))
+                                    .foregroundStyle(.secondary)
+                                    .frame(width: 24, alignment: .trailing)
+                                Text(stepText)
+                                    .font(.system(size: 13))
+                                    .strikethrough(checkedIndices.contains(idx))
+                                    .foregroundStyle(checkedIndices.contains(idx) ? .secondary : .primary)
+                                    .multilineTextAlignment(.leading)
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
                         }
+                        .buttonStyle(.plain)
                     }
                 }
                 .padding(14)
