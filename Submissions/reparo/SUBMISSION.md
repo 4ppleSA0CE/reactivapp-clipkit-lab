@@ -55,7 +55,7 @@ We’d use it to re-engage users who didn’t finish: send a link back to their 
 
 ### 3. Platform Extensions (if applicable)
 
-The prototype works with current Reactiv Clips capabilities. One extension that would help: the ability to restore or deep-link back to a specific repair report when the user returns via the 8-hour notification, so they don’t have to re-scan or re-analyze — they land on their existing guide and cart. Not required for the submission.
+Adding AR technology for better visualization of repairs would be extremely helpful to the client, albeit might slow down the overall time on the app clip. This could be a optional feature for the user to choose to use and could be optimized to generate AR visuals as quickly as possible to make our App Clip stil fast but even more powerful.
 
 ---
 
