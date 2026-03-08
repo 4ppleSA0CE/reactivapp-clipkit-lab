@@ -1,5 +1,5 @@
 ## Team Name: Reparo
-## Clip Name: ReparoClipExperience
+## Clip Name: Reparo
 ## Invocation URL Pattern: example.com/reparo/:param
 
 ---

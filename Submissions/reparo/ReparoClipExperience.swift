@@ -57,13 +57,16 @@ struct ReparoClipExperience: ClipExperience {
         case upload
         case analyzing
         case results(RepairResult)
+        case checkout(RepairResult)
+        case orderConfirmed
         case error(String)
 
         static func == (lhs: FlowStep, rhs: FlowStep) -> Bool {
             switch (lhs, rhs) {
-            case (.welcome, .welcome), (.upload, .upload), (.analyzing, .analyzing):
+            case (.welcome, .welcome), (.upload, .upload), (.analyzing, .analyzing),
+                 (.orderConfirmed, .orderConfirmed):
                 return true
-            case (.results, .results), (.error, .error):
+            case (.results, .results), (.checkout, .checkout), (.error, .error):
                 return true
             default:
                 return false
@@ -77,6 +80,7 @@ struct ReparoClipExperience: ClipExperience {
     @State private var selectedImage: Image?
     @State private var lastImageData: Data?
     @State private var showCamera = false
+    @State private var cartItems: [CheckoutItem] = []
 
     var body: some View {
         ZStack {
@@ -93,6 +97,10 @@ struct ReparoClipExperience: ClipExperience {
                         analyzingView
                     case .results(let result):
                         resultsView(result)
+                    case .checkout(let result):
+                        checkoutView(result)
+                    case .orderConfirmed:
+                        orderConfirmedView
                     case .error(let message):
                         errorView(message)
                     }
@@ -322,10 +330,15 @@ struct ReparoClipExperience: ClipExperience {
             .padding(.horizontal, 24)
             .padding(.top, 4)
 
+        ClipActionButton(title: "Checkout — Buy parts & tools", icon: "cart.fill") {
+            cartItems = CheckoutItem.buildCart(from: r)
+            step = .checkout(r)
+        }
+        .padding(.top, 8)
+
         ClipActionButton(title: "Analyze another", icon: "arrow.clockwise", style: .secondary) {
             resetForNewAnalysis()
         }
-        .padding(.top, 8)
     }
 
     @ViewBuilder
@@ -476,6 +489,159 @@ struct ReparoClipExperience: ClipExperience {
         }
     }
 
+    // MARK: - Checkout
+
+    @ViewBuilder
+    private func checkoutView(_ r: RepairResult) -> some View {
+        ClipHeader(
+            title: "Checkout",
+            subtitle: "\(cartItems.count) item\(cartItems.count == 1 ? "" : "s") in your cart",
+            systemImage: "cart.fill"
+        )
+        .padding(.top, 16)
+
+        VStack(spacing: 0) {
+            ForEach(cartItems) { item in
+                HStack(spacing: 12) {
+                    Image(systemName: item.icon)
+                        .font(.system(size: 14))
+                        .foregroundStyle(.secondary)
+                        .frame(width: 28)
+
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(item.name)
+                            .font(.system(size: 14, weight: .medium))
+                            .lineLimit(1)
+                        Text(item.category)
+                            .font(.system(size: 11))
+                            .foregroundStyle(.tertiary)
+                    }
+
+                    Spacer()
+
+                    Text("$\(String(format: "%.2f", item.price))")
+                        .font(.system(size: 14, weight: .semibold, design: .monospaced))
+
+                    Button {
+                        withAnimation(.spring(duration: 0.25)) {
+                            cartItems.removeAll { $0.id == item.id }
+                        }
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 18))
+                            .foregroundStyle(.tertiary)
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
+
+                if item.id != cartItems.last?.id {
+                    Divider().padding(.leading, 56)
+                }
+            }
+        }
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 14))
+        .padding(.horizontal, 24)
+
+        if cartItems.isEmpty {
+            Text("Your cart is empty")
+                .font(.system(size: 15))
+                .foregroundStyle(.secondary)
+                .padding(.top, 12)
+        }
+
+        GlassEffectContainer {
+            HStack {
+                Text("Total")
+                    .font(.system(size: 16, weight: .semibold))
+                Spacer()
+                Text("$\(String(format: "%.2f", cartItems.reduce(0) { $0 + $1.price }))")
+                    .font(.system(size: 18, weight: .bold, design: .monospaced))
+            }
+            .padding(.vertical, 4)
+        }
+        .padding(.horizontal, 24)
+
+        if !cartItems.isEmpty {
+            VStack(spacing: 10) {
+                checkoutPayButton(
+                    label: "Pay with Credit / Debit",
+                    icon: "creditcard.fill",
+                    color: .blue
+                )
+
+                checkoutPayButton(
+                    label: "Pay with Solana",
+                    icon: "bitcoinsign.circle.fill",
+                    color: Color(red: 0.58, green: 0.31, blue: 0.97)
+                )
+
+                checkoutPayButton(
+                    label: "Pay with Shop Pay",
+                    icon: "bag.fill",
+                    color: Color(red: 0.35, green: 0.21, blue: 0.83)
+                )
+            }
+            .padding(.horizontal, 24)
+            .padding(.top, 4)
+        }
+
+        Button {
+            step = .results(r)
+        } label: {
+            Text("← Back to results")
+                .font(.system(size: 14, weight: .medium))
+                .foregroundStyle(.secondary)
+        }
+        .padding(.top, 4)
+    }
+
+    private func checkoutPayButton(label: String, icon: String, color: Color) -> some View {
+        Button {
+            step = .orderConfirmed
+        } label: {
+            HStack(spacing: 10) {
+                Image(systemName: icon)
+                    .font(.system(size: 16, weight: .semibold))
+                Text(label)
+                    .font(.system(size: 15, weight: .semibold))
+            }
+            .foregroundStyle(.white)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 14)
+            .background(color, in: RoundedRectangle(cornerRadius: 14))
+        }
+    }
+
+    // MARK: - Order Confirmed
+
+    @ViewBuilder
+    private var orderConfirmedView: some View {
+        Spacer().frame(height: 60)
+
+        VStack(spacing: 16) {
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: 56))
+                .foregroundStyle(.green)
+
+            Text("Order placed!")
+                .font(.system(size: 24, weight: .bold))
+
+            Text("Your parts and tools are on the way.\nYou'll receive a confirmation email shortly.")
+                .font(.system(size: 14))
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 32)
+        }
+        .padding(.top, 40)
+
+        ClipActionButton(title: "Start a new repair", icon: "wrench.and.screwdriver") {
+            resetForNewAnalysis()
+            step = .welcome
+        }
+        .padding(.top, 24)
+    }
+
     // MARK: - Error
 
     @ViewBuilder
@@ -585,6 +751,78 @@ struct PickedImage: Transferable {
     }
 
     enum TransferError: Error { case importFailed }
+}
+
+// MARK: - Checkout Item
+
+struct CheckoutItem: Identifiable {
+    let id = UUID()
+    let name: String
+    let category: String
+    let icon: String
+    let price: Double
+
+    static func buildCart(from result: RepairResult) -> [CheckoutItem] {
+        let parts = result.parts_needed ?? []
+        let tools = result.tools_needed ?? []
+        let totalItems = parts.count + tools.count
+        guard totalItems > 0 else { return [] }
+
+        let budget = result.estimated_cost_usd ?? Double(totalItems) * 12.0
+        let partsShare = parts.isEmpty ? 0.0 : 0.7
+        let toolsShare = tools.isEmpty ? 0.0 : (parts.isEmpty ? 1.0 : 0.3)
+
+        var items: [CheckoutItem] = []
+
+        if !parts.isEmpty {
+            let pool = budget * partsShare
+            let prices = distribute(pool, count: parts.count)
+            for (i, part) in parts.enumerated() {
+                items.append(CheckoutItem(
+                    name: part,
+                    category: "Replacement part",
+                    icon: "shippingbox",
+                    price: prices[i]
+                ))
+            }
+        }
+
+        if !tools.isEmpty {
+            let pool = budget * toolsShare
+            let prices = distribute(pool, count: tools.count)
+            for (i, tool) in tools.enumerated() {
+                items.append(CheckoutItem(
+                    name: tool,
+                    category: "Tool",
+                    icon: "wrench.and.screwdriver",
+                    price: prices[i]
+                ))
+            }
+        }
+
+        let currentTotal = items.reduce(0) { $0 + $1.price }
+        if let last = items.last, abs(currentTotal - budget) > 0.01 {
+            let adjusted = last.price + (budget - currentTotal)
+            items[items.count - 1] = CheckoutItem(
+                name: last.name,
+                category: last.category,
+                icon: last.icon,
+                price: (adjusted * 100).rounded() / 100
+            )
+        }
+
+        return items
+    }
+
+    private static func distribute(_ total: Double, count: Int) -> [Double] {
+        guard count > 0 else { return [] }
+        let base = (total / Double(count) * 100).rounded() / 100
+        return (0..<count).map { i in
+            let variance = Double(i % 3 == 0 ? 1 : (i % 3 == 1 ? -1 : 0))
+            let price = base + variance * (base * 0.15)
+            return (price * 100).rounded() / 100
+        }
+    }
 }
 
 // MARK: - RepairResult Codable conformance for Equatable usage
