@@ -21,7 +21,7 @@ struct ProductLinks: Codable {
 }
 
 struct ProductLink: Codable, Identifiable {
-    let title: String?
+    let title: String?``
     let url: String?
 
     var id: String { url ?? UUID().uuidString }
@@ -33,7 +33,7 @@ enum ReparoAPIService {
 
     // TODO: Replace with your Mac's LAN IP for simulator testing.
     // iOS Simulator cannot reach localhost — use `ipconfig getifaddr en0`.
-    static let baseURL = "http://10.200.12.99:8000"
+    static let baseURL = "http://10.200.14.212:8000"
 
     struct APIError: LocalizedError {
         let message: String
@@ -49,7 +49,7 @@ enum ReparoAPIService {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-        request.timeoutInterval = 60
+        request.timeoutInterval = 120
 
         let ext = mimeType.contains("png") ? "png" : mimeType.contains("webp") ? "webp" : "jpg"
         var body = Data()

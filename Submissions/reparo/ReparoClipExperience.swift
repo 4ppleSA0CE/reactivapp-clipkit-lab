@@ -1,7 +1,6 @@
 import SwiftUI
 import PhotosUI
 import UIKit
-import CoreImage
 
 // MARK: - Camera capture (UIKit wrapper)
 
@@ -59,9 +58,6 @@ struct ReparoClipExperience: ClipExperience {
         case analyzing
         case results(RepairResult)
         case checkout(RepairResult)
-        case creditCardForm(RepairResult)
-        case solanaPay(RepairResult)
-        case shopPay(RepairResult)
         case orderConfirmed
         case error(String)
 
@@ -70,8 +66,7 @@ struct ReparoClipExperience: ClipExperience {
             case (.welcome, .welcome), (.upload, .upload), (.analyzing, .analyzing),
                  (.orderConfirmed, .orderConfirmed):
                 return true
-            case (.results, .results), (.checkout, .checkout), (.creditCardForm, .creditCardForm),
-                 (.solanaPay, .solanaPay), (.shopPay, .shopPay), (.error, .error):
+            case (.results, .results), (.checkout, .checkout), (.error, .error):
                 return true
             default:
                 return false
@@ -105,12 +100,6 @@ struct ReparoClipExperience: ClipExperience {
                         resultsView(result)
                     case .checkout(let result):
                         checkoutView(result)
-                    case .creditCardForm(let r):
-                        creditCardFormView(r: r)
-                    case .solanaPay(let r):
-                        solanaPayView(r: r)
-                    case .shopPay(let r):
-                        shopPayView(r: r)
                     case .orderConfirmed:
                         orderConfirmedView
                     case .error(let message):
@@ -576,23 +565,23 @@ struct ReparoClipExperience: ClipExperience {
 
         if !cartItems.isEmpty {
             VStack(spacing: 10) {
-                Button {
-                    step = .creditCardForm(r)
-                } label: {
-                    checkoutPayButtonLabel(label: "Pay with Credit / Debit", icon: "creditcard.fill", color: .blue)
-                }
+                checkoutPayButton(
+                    label: "Pay with Credit / Debit",
+                    icon: "creditcard.fill",
+                    color: .blue
+                )
 
-                Button {
-                    step = .solanaPay(r)
-                } label: {
-                    checkoutPayButtonLabel(label: "Pay with Solana", icon: "bitcoinsign.circle.fill", color: Color(red: 0.58, green: 0.31, blue: 0.97))
-                }
+                checkoutPayButton(
+                    label: "Pay with Solana",
+                    icon: "bitcoinsign.circle.fill",
+                    color: Color(red: 0.58, green: 0.31, blue: 0.97)
+                )
 
-                Button {
-                    step = .shopPay(r)
-                } label: {
-                    checkoutPayButtonLabel(label: "Pay with Shop Pay", icon: "bag.fill", color: Color(red: 0.35, green: 0.21, blue: 0.83))
-                }
+                checkoutPayButton(
+                    label: "Pay with Shop Pay",
+                    icon: "bag.fill",
+                    color: Color(red: 0.35, green: 0.21, blue: 0.83)
+                )
             }
             .padding(.horizontal, 24)
             .padding(.top, 4)
@@ -608,205 +597,20 @@ struct ReparoClipExperience: ClipExperience {
         .padding(.top, 4)
     }
 
-    private func checkoutPayButtonLabel(label: String, icon: String, color: Color) -> some View {
-        HStack(spacing: 10) {
-            Image(systemName: icon)
-                .font(.system(size: 16, weight: .semibold))
-            Text(label)
-                .font(.system(size: 15, weight: .semibold))
-        }
-        .foregroundStyle(.white)
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 14)
-        .background(color, in: RoundedRectangle(cornerRadius: 14))
-    }
-
-    // MARK: - Credit / Debit Form (mock)
-
-    @State private var cardNumber = ""
-    @State private var cardExpiry = ""
-    @State private var cardCVV = ""
-    @State private var cardName = ""
-    @State private var billingLine1 = ""
-    @State private var billingLine2 = ""
-    @State private var billingCity = ""
-    @State private var billingProvince = ""
-    @State private var billingPostal = ""
-    @State private var billingCountry = ""
-    @State private var shopPayPhone = ""
-    @State private var shopPayCode = ""
-
-    @ViewBuilder
-    private func creditCardFormView(r: RepairResult) -> some View {
-        let total = cartItems.reduce(0) { $0 + $1.price }
-
-        ClipHeader(
-            title: "Credit / Debit",
-            subtitle: "Enter your card details",
-            systemImage: "creditcard.fill"
-        )
-        .padding(.top, 16)
-
-        VStack(alignment: .leading, spacing: 12) {
-            formField(placeholder: "Card number", text: $cardNumber)
-            HStack(spacing: 12) {
-                formField(placeholder: "MM/YY", text: $cardExpiry)
-                formField(placeholder: "CVV", text: $cardCVV)
-            }
-            formField(placeholder: "Name on card", text: $cardName)
-            formField(placeholder: "Billing address", text: $billingLine1)
-            formField(placeholder: "Apt, suite (optional)", text: $billingLine2)
-            HStack(spacing: 12) {
-                formField(placeholder: "City", text: $billingCity)
-                formField(placeholder: "Province", text: $billingProvince)
-            }
-            HStack(spacing: 12) {
-                formField(placeholder: "Postal code", text: $billingPostal)
-                formField(placeholder: "Country", text: $billingCountry)
-            }
-        }
-        .padding(24)
-
-        ClipActionButton(title: "Pay $\(String(format: "%.2f", total))", icon: "checkmark.circle.fill") {
-            step = .orderConfirmed
-        }
-
+    private func checkoutPayButton(label: String, icon: String, color: Color) -> some View {
         Button {
-            step = .checkout(r)
+            step = .orderConfirmed
         } label: {
-            Text("← Back to checkout")
-                .font(.system(size: 14, weight: .medium))
-                .foregroundStyle(.secondary)
-        }
-    }
-
-    private func formField(placeholder: String, text: Binding<String>) -> some View {
-        TextField(placeholder, text: text)
-            .textFieldStyle(.plain)
-            .padding(.horizontal, 14)
-            .padding(.vertical, 12)
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 10))
-            .font(.system(size: 15))
-    }
-
-    // MARK: - Solana Pay (mock)
-
-    private static let solanaAddress = "Bb7u1Je7A5iwCRwstnVQwTkpSh5uWvJbH42qNgpRJeS8"
-    private static let usdToCadRate = 1.35
-    private static let solPriceCad = 350.0
-
-    @ViewBuilder
-    private func solanaPayView(r: RepairResult) -> some View {
-        let totalUSD = cartItems.reduce(0) { $0 + $1.price }
-        let totalCAD = totalUSD * Self.usdToCadRate
-        let totalSOL = totalCAD / Self.solPriceCad
-
-        ClipHeader(
-            title: "Pay with Solana",
-            subtitle: "Send SOL to complete payment",
-            systemImage: "bitcoinsign.circle.fill"
-        )
-        .padding(.top, 16)
-
-        GlassEffectContainer {
-            VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    Text("Amount (USD)")
-                        .font(.system(size: 13))
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    Text("$\(String(format: "%.2f", totalUSD))")
-                        .font(.system(size: 15, weight: .semibold, design: .monospaced))
-                }
-                HStack {
-                    Text("Amount (CAD)")
-                        .font(.system(size: 13))
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    Text("$\(String(format: "%.2f", totalCAD))")
-                        .font(.system(size: 15, weight: .semibold, design: .monospaced))
-                }
-                HStack {
-                    Text("≈ SOL")
-                        .font(.system(size: 13))
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    Text(String(format: "%.4f SOL", totalSOL))
-                        .font(.system(size: 15, weight: .bold, design: .monospaced))
-                }
+            HStack(spacing: 10) {
+                Image(systemName: icon)
+                    .font(.system(size: 16, weight: .semibold))
+                Text(label)
+                    .font(.system(size: 15, weight: .semibold))
             }
-            .padding(.vertical, 4)
-        }
-        .padding(.horizontal, 24)
-
-        Text("Scan or send to this address:")
-            .font(.system(size: 13, weight: .medium))
-            .foregroundStyle(.secondary)
-            .padding(.horizontal, 24)
-            .padding(.top, 8)
-
-        QRCodeView(string: Self.solanaAddress)
-            .frame(width: 180, height: 180)
-            .padding(.top, 8)
-
-        Text(Self.solanaAddress)
-            .font(.system(size: 11, weight: .medium, design: .monospaced))
-            .foregroundStyle(.secondary)
-            .multilineTextAlignment(.center)
-            .padding(.horizontal, 24)
-            .padding(.top, 4)
-
-        ClipActionButton(title: "I've sent payment", icon: "checkmark.circle.fill") {
-            step = .orderConfirmed
-        }
-        .padding(.top, 12)
-
-        Button {
-            step = .checkout(r)
-        } label: {
-            Text("← Back to checkout")
-                .font(.system(size: 14, weight: .medium))
-                .foregroundStyle(.secondary)
-        }
-    }
-
-    // MARK: - Shop Pay (mock)
-
-    @ViewBuilder
-    private func shopPayView(r: RepairResult) -> some View {
-        let total = cartItems.reduce(0) { $0 + $1.price }
-
-        ClipHeader(
-            title: "Shop Pay",
-            subtitle: "One-tap checkout with your saved details",
-            systemImage: "bag.fill"
-        )
-        .padding(.top, 16)
-
-        Text("We'll send a verification code to your phone to confirm it's you. Your saved shipping and payment will be used.")
-            .font(.system(size: 13))
-            .foregroundStyle(.secondary)
-            .multilineTextAlignment(.center)
-            .padding(.horizontal, 24)
-
-        VStack(alignment: .leading, spacing: 12) {
-            formField(placeholder: "Phone number", text: $shopPayPhone)
-            formField(placeholder: "Verification code (6 digits)", text: $shopPayCode)
-        }
-        .padding(.horizontal, 24)
-        .padding(.top, 8)
-
-        ClipActionButton(title: "Pay $\(String(format: "%.2f", total)) with Shop Pay", icon: "checkmark.circle.fill") {
-            step = .orderConfirmed
-        }
-        .padding(.top, 8)
-
-        Button {
-            step = .checkout(r)
-        } label: {
-            Text("← Back to checkout")
-                .font(.system(size: 14, weight: .medium))
-                .foregroundStyle(.secondary)
+            .foregroundStyle(.white)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 14)
+            .background(color, in: RoundedRectangle(cornerRadius: 14))
         }
     }
 
@@ -883,34 +687,6 @@ struct ReparoClipExperience: ClipExperience {
         lastImageData = nil
         checkedRepairStepIndices = []
         step = .upload
-    }
-}
-
-// MARK: - QR Code
-
-private struct QRCodeView: View {
-    let string: String
-
-    var body: some View {
-        if let image = generateQRCode(from: string) {
-            Image(uiImage: image)
-                .interpolation(.none)
-                .resizable()
-                .scaledToFit()
-        }
-    }
-
-    private func generateQRCode(from s: String) -> UIImage? {
-        guard let data = s.data(using: .utf8) else { return nil }
-        guard let filter = CIFilter(name: "CIQRCodeGenerator") else { return nil }
-        filter.setValue(data, forKey: "inputMessage")
-        filter.setValue("H", forKey: "inputCorrectionLevel")
-        guard let output = filter.outputImage else { return nil }
-        let scale = 180 / output.extent.width
-        let scaled = output.transformed(by: CGAffineTransform(scaleX: scale, y: scale))
-        let context = CIContext()
-        guard let cgImage = context.createCGImage(scaled, from: scaled.extent) else { return nil }
-        return UIImage(cgImage: cgImage)
     }
 }
 
