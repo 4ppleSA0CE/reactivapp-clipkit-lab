@@ -89,8 +89,13 @@ How does this create measurable business impact? Be specific about:
 ---
 
 ### Demo Video
-
-[https://www.youtube.com/watch?v=JoFuqZbOmnA](https://www.youtube.com/watch?v=JoFuqZbOmnA)
+<div align="center">
+  <a href="https://www.youtube.com/watch?v=JoFuqZbOmnA">
+    <img src="https://img.youtube.com/vi/JoFuqZbOmnA/maxresdefault.jpg" alt="Reparo Demo Video" width="800"/>
+  </a>
+  <br/>
+  <strong>Click the image above to watch the demo on YouTube</strong>
+</div>
 
 ### Screenshot(s)
 <img width="501" height="1006" alt="Screenshot 2026-03-07 at 10 25 48 PM" src="https://github.com/user-attachments/assets/2dba51bc-6b4d-4f94-ba37-b7513e106c9f" />
